@@ -594,7 +594,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 reqBody.farm2 = farm2;
             }
 
-            const response = await fetch("http://localhost:5000/api/optimize", {
+            const isLocalPort3000 = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') && window.location.port === '3000';
+            const apiEndpoint = isLocalPort3000 ? "http://localhost:5000/api/optimize" : "/api/optimize";
+
+            const response = await fetch(apiEndpoint, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(reqBody),
@@ -617,7 +620,8 @@ document.addEventListener('DOMContentLoaded', () => {
         const weatherBadge = document.getElementById('weather-telemetry');
         
         if (isBackend && routes) {
-            telemetryBadge.textContent = "Engine: Express Backend (Port 5000)";
+            const isLocalPort3000 = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') && window.location.port === '3000';
+            telemetryBadge.textContent = isLocalPort3000 ? "Engine: Express Backend (Port 5000)" : "Engine: Express Backend (Cloud Live)";
             telemetryBadge.className = "telemetry-badge online";
             telemetryBadge.style.color = "#10b981"; // Emerald
             

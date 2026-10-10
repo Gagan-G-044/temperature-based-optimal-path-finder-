@@ -9,6 +9,10 @@ const PORT = process.env.PORT || 5000;
 app.use(cors());
 app.use(express.json());
 
+// Serve static frontend files for single-host production deployment (e.g. Render)
+const frontendDir = path.join(__dirname, '../frontend');
+app.use(express.static(frontendDir));
+
 const PRODUCE_CONFIG = {
     "Leafy Greens": { name: 'Leafy Greens', T_ref: 10, k: 0.022, rate: 40 },
     "Tomato": { name: 'Tomato', T_ref: 13, k: 0.012, rate: 35 },
@@ -326,6 +330,13 @@ app.post('/api/optimize', async (req, res) => {
     } catch (error) {
         console.error('API Error:', error);
         res.status(500).json({ success: false, error: 'Internal server error processing routes.' });
+    }
+});
+
+// Fallback to index.html for non-API client routes
+app.get('*', (req, res) => {
+    if (!req.path.startsWith('/api')) {
+        res.sendFile(path.join(frontendDir, 'index.html'));
     }
 });
 
