@@ -35,16 +35,21 @@ The platform features a **two-page modern architecture** with zero-downtime offl
 │   └── fallback_weather.json # Pre-cached Open-Meteo road temperature grid
 ├── backend/
 │   ├── server.js             # Express API (Multi-route decay scoring & APMC mandi analytics)
-│   └── package.json          # Backend dependencies
-├── skills/                   # Automated validation suites
-│   ├── test-backend.js       # 5/5 automated backend test suite
-│   ├── test-frontend-integration.js # 23/23 frontend & decay integration test suite
-│   └── audit-two-page.js     # 26/26 architecture & design system audit
-├── docs/                     # Design documents & execution plan
-│   ├── PLAN.md
-│   └── DESIGN.md
+│   ├── package.json          # Backend dependencies & scripts
+│   ├── package-lock.json     # Backend locked dependency manifest
+│   ├── fallback_routes.json  # Fallback routing data
+│   └── fallback_weather.json # Fallback microclimate data
+├── tests/                    # Automated validation suites
+│   ├── test-backend.js       # Backend endpoints & SLA decay test suite (5 checks)
+│   ├── test-frontend-integration.js # Frontend DOM, decay math & multi-route test suite (23 checks)
+│   └── audit-two-page.js     # Two-page architecture & design system audit (26 checks)
+├── docs/                     # Design documents, execution plan & pitch guide
+│   ├── DESIGN.md             # Spatial perspective & design vision
+│   ├── PLAN.md               # Project execution phases & roadmap
+│   ├── demo-walkthrough.md   # Pitch guide & live presentation walkthrough script
+│   └── design/               # Detailed UI component & UX specifications
 ├── package.json              # Root project orchestration scripts
-└── .gitignore                # Production Git sanitization rules
+└── .gitignore                # Git ignore rules
 ```
 
 ### 1. Landing Page (`/` or `index.html`)
@@ -120,8 +125,8 @@ To guarantee zero downtime in rural regions with intermittent internet connectiv
 ### Installation
 Clone the repository and install dependencies:
 ```bash
-git clone https://github.com/your-username/coolroute-thermal-routing.git
-cd coolroute-thermal-routing
+git clone https://github.com/Gagan-G-044/temperature-based-optimal-path-finder-.git
+cd temperature-based-optimal-path-finder-
 npm install
 ```
 
@@ -131,7 +136,7 @@ npm install
    ```bash
    npm start
    ```
-   *Backend runs on `http://localhost:5000`.*
+   *Backend runs on `http://localhost:5000` (can also run from `backend/` via `cd backend && npm start`).*
 
 2. **Start the Frontend Web Server:**
    In a separate terminal:
@@ -142,25 +147,32 @@ npm install
 
 3. **Open in Browser:**
    - **Landing Page:** `http://localhost:3000/`
-   - **Live Command Center:** `http://localhost:3000/dashboard.html` (or `http://localhost:3000/dashboard`)
+   - **Live Command Center:** `http://localhost:3000/dashboard.html`
+
+4. **Live Pitch & Presentation Guide:**
+   - Step-by-step 2-minute demo flow and 5-minute pitch outline are documented in [`docs/demo-walkthrough.md`](docs/demo-walkthrough.md).
 
 ---
 
 ## 🧪 Automated Test Suites
 
-The codebase includes comprehensive automated test suites:
+The codebase includes automated test suites covering backend endpoints, frontend integration, and the biophysical decay model:
+
+> **Note on Running Tests:** Because the test suites validate live local HTTP endpoints, ensure the relevant servers are running before executing tests:
+> - **Backend tests** (`npm run test:backend`) require the backend server running on `http://localhost:5000`.
+> - **Frontend integration and audit tests** (`npm run test:frontend`, `npm run test:audit`, or `npm test`) require both the backend (`http://localhost:5000`) and the frontend server (`http://localhost:3000`).
 
 ```bash
-# Run all test suites
+# Run all test suites (tests/test-backend.js, tests/test-frontend-integration.js, tests/audit-two-page.js)
 npm test
 
-# Run backend unit & optimization tests (5/5 checks)
+# Run backend unit & optimization tests (5 checks)
 npm run test:backend
 
-# Run frontend integration & decay tests (23/23 checks)
+# Run frontend integration & decay tests (23 checks)
 npm run test:frontend
 
-# Run two-page architecture & design system audit (26/26 checks)
+# Run two-page architecture & design system audit (26 checks)
 npm run test:audit
 ```
 

@@ -6,10 +6,10 @@
   "scripts": {
     "start": "node backend/server.js",
     "serve:frontend": "npx serve frontend -l 3000",
-    "test": "node skills/test-backend.js && node skills/test-frontend-integration.js && node skills/audit-two-page.js",
-    "test:backend": "node skills/test-backend.js",
-    "test:frontend": "node skills/test-frontend-integration.js",
-    "test:audit": "node skills/audit-two-page.js"
+    "test": "node tests/test-backend.js && node tests/test-frontend-integration.js && node tests/audit-two-page.js",
+    "test:backend": "node tests/test-backend.js",
+    "test:frontend": "node tests/test-frontend-integration.js",
+    "test:audit": "node tests/audit-two-page.js"
   },
   "keywords": [
     "cold-chain",

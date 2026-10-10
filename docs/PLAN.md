@@ -51,11 +51,11 @@ AG02 "Thermal Routing for Perishability Decay" is a logistics dashboard designed
 - [x] Finalize presentation deck.
 
 ### Phase 3: Project Reorganization (Complete)
-- [x] Create clean modular folder structure (`frontend/`, `backend/`, `docs/`, `skills/`).
+- [x] Create clean modular folder structure (`frontend/`, `backend/`, `docs/`, `tests/`).
 - [x] Update Node paths to use `__dirname`.
 - [x] Replicate fallback JSONs for client-failover static serving.
-- [x] Write `demo-walkthrough.md`.
-- [x] Populate repository documentation (`README.md`, `AGENTS.md`, `GEMINI.md`).
+- [x] Write `demo-walkthrough.md` in `docs/`.
+- [x] Populate repository documentation (`README.md`, `docs/DESIGN.md`, `docs/PLAN.md`).
 - [x] Research and lock in UX/design specifications in `docs/design/`.
 
 ### Phase 4: Hardware Sensor Prototyping
