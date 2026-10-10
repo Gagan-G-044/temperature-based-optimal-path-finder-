@@ -5,6 +5,16 @@
 
 ---
 
+## 🚀 Live Production Deployment
+
+| Service | Live URL | Status | Description |
+| :--- | :--- | :--- | :--- |
+| **🌐 Web Application** | [https://cool-route-y4w9.onrender.com/](https://cool-route-y4w9.onrender.com/) | `Live` | Marketing landing page & architecture overview |
+| **🗺️ Command Center** | [https://cool-route-y4w9.onrender.com/dashboard.html](https://cool-route-y4w9.onrender.com/dashboard.html) | `Live` | Interactive GIS map, produce tuner & decay optimizer |
+| **⚡ Backend API** | [https://cool-route-y4w9.onrender.com/api/health](https://cool-route-y4w9.onrender.com/api/health) | `Active` | Express optimizer engine & weather telemetry |
+
+---
+
 ## 📌 Problem Statement
 
 Shortest route is not always the safest route. Traditional GPS navigation optimizes purely for distance or travel time, ignoring the thermal impact on perishable agricultural goods. 
