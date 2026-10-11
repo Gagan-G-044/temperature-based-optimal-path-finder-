@@ -167,7 +167,11 @@
                 </div>
 
                 <div class="form-group" style="margin-top: 15px;">
-                    <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                    <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px;">
+                        <label style="font-weight: 600; font-size: 13px; color: var(--text-main); margin: 0;">📍 Starting Point (Origin Farm)</label>
+                        <span id="current-origin-summary" style="font-size: 11px; color: #10b981; font-weight: 600;">Harihar Farm</span>
+                    </div>
+                    <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; margin-bottom: 6px;">
                         <input type="checkbox" id="multi-farm-pickup" style="width: auto; accent-color: #10b981;">
                         Multi-Farm Pickup (Dual Waypoints)
                     </label>
@@ -175,35 +179,37 @@
                     
                     <div id="custom-loc-tray" class="custom-crop-tray" style="display: none; margin-top: 8px;">
                         <div style="font-size: 12px; color: var(--text-muted); margin-bottom: 8px; font-weight: 500;">
-                            Select a regional farm hub or click on the map:
+                            Select a regional farm or enter coordinates / click map:
                         </div>
                         
-                        <!-- 1-Click Quick Presets -->
+                        <!-- 1-Click Quick Presets for Starting Point -->
                         <div class="preset-loc-buttons" style="display: flex; gap: 6px; margin-bottom: 10px; flex-wrap: wrap;">
-                            <button type="button" class="preset-btn" data-name="Ranebennur Farm" data-lat="14.6231" data-lng="75.6218">Ranebennur</button>
-                            <button type="button" class="preset-btn" data-name="Channagiri Farm" data-lat="14.0278" data-lng="75.9283">Channagiri</button>
-                            <button type="button" class="preset-btn" data-name="Chitradurga Belt" data-lat="14.2251" data-lng="76.3980">Chitradurga</button>
+                            <button type="button" class="preset-btn origin-preset-btn active" data-name="Harihar Farm" data-lat="14.5126" data-lng="75.8055">Harihar</button>
+                            <button type="button" class="preset-btn origin-preset-btn" data-name="Ranebennur Farm" data-lat="14.6231" data-lng="75.6218">Ranebennur</button>
+                            <button type="button" class="preset-btn origin-preset-btn" data-name="Channagiri Farm" data-lat="14.0278" data-lng="75.9283">Channagiri</button>
+                            <button type="button" class="preset-btn origin-preset-btn" data-name="Chitradurga Belt" data-lat="14.2251" data-lng="76.3980">Chitradurga</button>
+                            <button type="button" class="preset-btn origin-preset-btn" data-name="Honnali Farm" data-lat="14.2407" data-lng="75.6323">Honnali</button>
                         </div>
 
-                        <!-- Coordinate Inputs -->
+                        <!-- Coordinate Inputs for Starting Point -->
                         <div class="custom-input-group" style="margin-bottom: 8px;">
-                            <label for="custom-origin-name">Location Name</label>
-                            <input type="text" id="custom-origin-name" value="Custom Farm Location">
+                            <label for="custom-origin-name">Starting Point Name</label>
+                            <input type="text" id="custom-origin-name" value="Harihar Farm">
                         </div>
                         <div class="custom-input-row" style="display: flex; gap: 8px; margin-bottom: 8px;">
                             <div class="custom-input-group" style="flex: 1;">
                                 <label for="custom-origin-lat">Latitude</label>
-                                <input type="number" id="custom-origin-lat" step="0.0001" value="14.6231">
+                                <input type="number" id="custom-origin-lat" step="0.0001" value="14.5126">
                             </div>
                             <div class="custom-input-group" style="flex: 1;">
                                 <label for="custom-origin-lng">Longitude</label>
-                                <input type="number" id="custom-origin-lng" step="0.0001" value="75.6218">
+                                <input type="number" id="custom-origin-lng" step="0.0001" value="75.8055">
                             </div>
                         </div>
 
                         <!-- Direct Map Click Button -->
                         <button type="button" id="map-pick-mode-btn" class="map-pick-btn">
-                            🎯 Click on Map to Set Farm
+                            🎯 Click on Map to Set Starting Point
                         </button>
                     </div>
 
@@ -274,6 +280,51 @@
                                 🎯 Set Farm 2 on Map
                             </button>
                         </div>
+                    </div>
+                </div>
+
+                <!-- End Point / Destination Hub Section -->
+                <div class="form-group" style="margin-top: 15px;">
+                    <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px;">
+                        <label style="font-weight: 600; font-size: 13px; color: var(--text-main); margin: 0;">🏁 End Point (Destination Hub / APMC)</label>
+                        <span id="current-dest-summary" style="font-size: 11px; color: #6366f1; font-weight: 600;">GMU / GMIT Hub</span>
+                    </div>
+                    <button type="button" id="toggle-custom-dest-btn" class="custom-toggle-btn">🏁 Custom Hub / Destination</button>
+                    
+                    <div id="custom-dest-tray" class="custom-crop-tray" style="display: none; margin-top: 8px;">
+                        <div style="font-size: 12px; color: var(--text-muted); margin-bottom: 8px; font-weight: 500;">
+                            Select a destination terminal or enter coordinates / click map:
+                        </div>
+                        
+                        <!-- 1-Click Quick Presets for Destination -->
+                        <div class="preset-loc-buttons" style="display: flex; gap: 6px; margin-bottom: 10px; flex-wrap: wrap;">
+                            <button type="button" class="preset-btn dest-preset-btn active" data-name="Davanagere GMU (Central Hub)" data-lat="14.4644" data-lng="75.9218">GMU / GMIT Hub</button>
+                            <button type="button" class="preset-btn dest-preset-btn" data-name="Davanagere APMC Market" data-lat="14.4710" data-lng="75.9180">Davanagere APMC</button>
+                            <button type="button" class="preset-btn dest-preset-btn" data-name="Hubballi Agro Terminal" data-lat="15.3647" data-lng="75.1240">Hubballi Hub</button>
+                            <button type="button" class="preset-btn dest-preset-btn" data-name="Chitradurga Cold Hub" data-lat="14.2251" data-lng="76.3980">Chitradurga Hub</button>
+                            <button type="button" class="preset-btn dest-preset-btn" data-name="Shimoga Packhouse Terminal" data-lat="13.9299" data-lng="75.5681">Shimoga Hub</button>
+                        </div>
+
+                        <!-- Coordinate Inputs for Destination -->
+                        <div class="custom-input-group" style="margin-bottom: 8px;">
+                            <label for="custom-dest-name">Destination Name</label>
+                            <input type="text" id="custom-dest-name" value="Davanagere GMU (Central Hub)">
+                        </div>
+                        <div class="custom-input-row" style="display: flex; gap: 8px; margin-bottom: 8px;">
+                            <div class="custom-input-group" style="flex: 1;">
+                                <label for="custom-dest-lat">Latitude</label>
+                                <input type="number" id="custom-dest-lat" step="0.0001" value="14.4644">
+                            </div>
+                            <div class="custom-input-group" style="flex: 1;">
+                                <label for="custom-dest-lng">Longitude</label>
+                                <input type="number" id="custom-dest-lng" step="0.0001" value="75.9218">
+                            </div>
+                        </div>
+
+                        <!-- Direct Map Click Button for Destination -->
+                        <button type="button" id="map-pick-dest-btn" class="map-pick-btn">
+                            🎯 Click on Map to Set Destination Hub
+                        </button>
                     </div>
                 </div>
 

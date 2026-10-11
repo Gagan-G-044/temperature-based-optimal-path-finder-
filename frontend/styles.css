@@ -886,6 +886,20 @@ body {
     color: #047857;
 }
 
+.preset-btn.active {
+    background: #10b981 !important;
+    border-color: #059669 !important;
+    color: #FFFFFF !important;
+    box-shadow: 0 1px 4px rgba(16, 185, 129, 0.3);
+}
+
+.dest-preset-btn.active {
+    background: #6366f1 !important;
+    border-color: #4f46e5 !important;
+    color: #FFFFFF !important;
+    box-shadow: 0 1px 4px rgba(99, 102, 241, 0.3);
+}
+
 .preset-btn:active {
     transform: scale(0.96);
 }

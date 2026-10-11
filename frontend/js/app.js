@@ -5,6 +5,7 @@ let map;
 let routeLayerGroup;
 let markerLayerGroup;
 let customOriginMarker = null;
+let customDestMarker = null;
 let isMapPickingMode = false;
 let mapPickTarget = null;
 let activeSimulationRouteIndex = 0;
@@ -53,27 +54,17 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     };
 
-    function initBaseMarkers() {
-        markerLayerGroup.clearLayers();
-        if (customOriginMarker) {
-            map.removeLayer(customOriginMarker);
-            customOriginMarker = null;
-        }
-        const hub = CONFIG.LOCATIONS.HUB;
-        L.marker([hub.lat, hub.lng], { icon: blueIcon })
-            .addTo(markerLayerGroup)
-            .bindPopup(`<strong>${hub.name}</strong><br>Processing Hub`);
-
-        CONFIG.LOCATIONS.FARMS.forEach((farm, idx) => {
-            L.marker([farm.lat, farm.lng], { icon: greenIcon })
-                .addTo(markerLayerGroup)
-                .bindPopup(`<strong>${farm.name}</strong><br>Farm ${idx + 1}`);
-        });
+    // Destination & Origin Data getters
+    function getDestinationData() {
+        const destNameInput = document.getElementById('custom-dest-name');
+        const destLatInput = document.getElementById('custom-dest-lat');
+        const destLngInput = document.getElementById('custom-dest-lng');
+        const name = (destNameInput && destNameInput.value.trim()) ? destNameInput.value.trim() : CONFIG.LOCATIONS.HUB.name;
+        const lat = destLatInput ? (parseFloat(destLatInput.value) || CONFIG.LOCATIONS.HUB.lat) : CONFIG.LOCATIONS.HUB.lat;
+        const lng = destLngInput ? (parseFloat(destLngInput.value) || CONFIG.LOCATIONS.HUB.lng) : CONFIG.LOCATIONS.HUB.lng;
+        return { id: 'custom_hub', name, lat, lng, type: 'hub' };
     }
 
-    initBaseMarkers();
-
-    // Data getters
     function getFarm1Data() {
         const name = (document.getElementById('farm1-name')?.value?.trim()) || 'Harihar Farm';
         const lat = parseFloat(document.getElementById('farm1-lat')?.value) || 14.5126;
@@ -89,10 +80,58 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function getCustomOriginData() {
-        const name = (document.getElementById('custom-origin-name')?.value?.trim()) || 'Custom Farm Location';
-        const lat = parseFloat(document.getElementById('custom-origin-lat')?.value) || 14.6231;
-        const lng = parseFloat(document.getElementById('custom-origin-lng')?.value) || 75.6218;
+        const name = (document.getElementById('custom-origin-name')?.value?.trim()) || 'Harihar Farm';
+        const lat = parseFloat(document.getElementById('custom-origin-lat')?.value) || 14.5126;
+        const lng = parseFloat(document.getElementById('custom-origin-lng')?.value) || 75.8055;
         return { id: 'custom_farm', name, lat, lng, type: 'farm' };
+    }
+
+    function initBaseMarkers() {
+        markerLayerGroup.clearLayers();
+        if (customOriginMarker) {
+            map.removeLayer(customOriginMarker);
+            customOriginMarker = null;
+        }
+        if (customDestMarker) {
+            map.removeLayer(customDestMarker);
+            customDestMarker = null;
+        }
+        const hub = getDestinationData();
+        L.marker([hub.lat, hub.lng], { icon: createNumberedIcon('🏁', '#6366f1') })
+            .addTo(markerLayerGroup)
+            .bindPopup(`<strong>🏁 ${hub.name}</strong><br>Destination End Point<br><span style="font-size:11px;color:#94a3b8;">${hub.lat.toFixed(4)}, ${hub.lng.toFixed(4)}</span>`);
+
+        CONFIG.LOCATIONS.FARMS.forEach((farm, idx) => {
+            L.marker([farm.lat, farm.lng], { icon: greenIcon })
+                .addTo(markerLayerGroup)
+                .bindPopup(`<strong>${farm.name}</strong><br>Farm ${idx + 1}`);
+        });
+    }
+
+    initBaseMarkers();
+
+    // Custom Destination Marker helper
+    function updateCustomDestMarker(lat, lng, name) {
+        if (customDestMarker) {
+            markerLayerGroup.removeLayer(customDestMarker);
+            customDestMarker = null;
+        }
+        const destPinIcon = L.divIcon({
+            className: 'custom-dest-pin',
+            html: `<div style="background: #6366f1; color: white; border-radius: 50%; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; font-size: 16px; border: 2px solid white; box-shadow: 0 3px 8px rgba(0,0,0,0.5);">🏁</div>`,
+            iconSize: [32, 32],
+            iconAnchor: [16, 32]
+        });
+        customDestMarker = L.marker([lat, lng], { icon: destPinIcon })
+            .addTo(markerLayerGroup)
+            .bindPopup(`<strong>🏁 ${name}</strong><br>Destination End Point<br><span style="font-size:11px;color:#94a3b8;">${lat.toFixed(4)}, ${lng.toFixed(4)}</span>`);
+        customDestMarker.openPopup();
+        map.panTo([lat, lng]);
+
+        const summarySpan = document.getElementById('current-dest-summary');
+        if (summarySpan) {
+            summarySpan.textContent = name.length > 18 ? name.slice(0, 16) + '...' : name;
+        }
     }
 
     // Custom Farm Marker helper
@@ -102,10 +141,10 @@ document.addEventListener('DOMContentLoaded', () => {
             map.removeLayer(customOriginMarker);
             customOriginMarker = null;
         }
-        const hub = CONFIG.LOCATIONS.HUB;
-        L.marker([hub.lat, hub.lng], { icon: blueIcon })
+        const hub = getDestinationData();
+        L.marker([hub.lat, hub.lng], { icon: createNumberedIcon('🏁', '#6366f1') })
             .addTo(markerLayerGroup)
-            .bindPopup(`<strong>${hub.name}</strong><br>Processing Hub`);
+            .bindPopup(`<strong>🏁 ${hub.name}</strong><br>Destination End Point<br><span style="font-size:11px;color:#94a3b8;">${hub.lat.toFixed(4)}, ${hub.lng.toFixed(4)}</span>`);
 
         const customPinIcon = L.divIcon({
             className: 'custom-farm-pin',
@@ -115,9 +154,16 @@ document.addEventListener('DOMContentLoaded', () => {
         });
         customOriginMarker = L.marker([lat, lng], { icon: customPinIcon })
             .addTo(markerLayerGroup)
-            .bindPopup(`<strong>${name}</strong><br>Custom Farm Origin<br><span style="font-size:11px;color:#94a3b8;">${lat.toFixed(4)}, ${lng.toFixed(4)}</span>`);
+            .bindPopup(`<strong>${name}</strong><br>Custom Starting Point<br><span style="font-size:11px;color:#94a3b8;">${lat.toFixed(4)}, ${lng.toFixed(4)}</span>`);
         customOriginMarker.openPopup();
-        map.panTo([lat, lng]);
+        
+        const bounds = L.latLngBounds([[lat, lng], [hub.lat, hub.lng]]);
+        map.fitBounds(bounds, { padding: [50, 50], maxZoom: 13 });
+
+        const summarySpan = document.getElementById('current-origin-summary');
+        if (summarySpan) {
+            summarySpan.textContent = name.length > 18 ? name.slice(0, 16) + '...' : name;
+        }
     }
 
     // Multi-Farm Preview Markers helper
@@ -129,7 +175,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         const f1 = getFarm1Data();
         const f2 = getFarm2Data();
-        const hubLoc = CONFIG.LOCATIONS.HUB;
+        const hubLoc = getDestinationData();
 
         L.marker([f1.lat, f1.lng], { icon: createNumberedIcon('1', '#10b981') })
             .addTo(markerLayerGroup)
@@ -141,7 +187,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         L.marker([hubLoc.lat, hubLoc.lng], { icon: createNumberedIcon('🏁', '#6366f1') })
             .addTo(markerLayerGroup)
-            .bindPopup(`<strong>🏁 GMU Processing Hub</strong><br>Destination: Davanagere<br><span style="font-size:11px;color:#94a3b8;">${hubLoc.lat.toFixed(4)}, ${hubLoc.lng.toFixed(4)}</span>`);
+            .bindPopup(`<strong>🏁 ${hubLoc.name}</strong><br>Destination End Point<br><span style="font-size:11px;color:#94a3b8;">${hubLoc.lat.toFixed(4)}, ${hubLoc.lng.toFixed(4)}</span>`);
 
         const bounds = L.latLngBounds([[f1.lat, f1.lng], [f2.lat, f2.lng], [hubLoc.lat, hubLoc.lng]]);
         map.fitBounds(bounds, { padding: [50, 50], maxZoom: 13 });
@@ -336,6 +382,47 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    // Reset pick mode helper
+    function resetMapPickMode() {
+        mapPickTarget = null;
+        map.getContainer().style.cursor = '';
+        const pick1Btn = document.getElementById('pick-farm1-btn');
+        if (pick1Btn) {
+            pick1Btn.textContent = '🎯 Set Farm 1 on Map';
+            pick1Btn.classList.remove('active');
+        }
+        const pick2Btn = document.getElementById('pick-farm2-btn');
+        if (pick2Btn) {
+            pick2Btn.textContent = '🎯 Set Farm 2 on Map';
+            pick2Btn.classList.remove('active');
+        }
+        const originBtn = document.getElementById('map-pick-mode-btn');
+        if (originBtn) {
+            originBtn.textContent = '🎯 Click on Map to Set Starting Point';
+            originBtn.classList.remove('active');
+        }
+        const destBtn = document.getElementById('map-pick-dest-btn');
+        if (destBtn) {
+            destBtn.textContent = '🎯 Click on Map to Set Destination Hub';
+            destBtn.classList.remove('active');
+        }
+    }
+
+    // Destination Tray Toggle
+    const toggleCustomDestBtn = document.getElementById('toggle-custom-dest-btn');
+    const customDestTray = document.getElementById('custom-dest-tray');
+    if (toggleCustomDestBtn && customDestTray) {
+        toggleCustomDestBtn.addEventListener('click', () => {
+            const isVisible = customDestTray.style.display !== 'none';
+            customDestTray.style.display = isVisible ? 'none' : 'block';
+            toggleCustomDestBtn.textContent = isVisible ? '🏁 Custom Hub / Destination' : '▲ Close Destination Tray';
+            if (!isVisible) {
+                const dest = getDestinationData();
+                updateCustomDestMarker(dest.lat, dest.lng, dest.name);
+            }
+        });
+    }
+
     // Map Pick Buttons
     const mapPickBtn = document.getElementById('map-pick-mode-btn');
     if (mapPickBtn) {
@@ -345,8 +432,23 @@ document.addEventListener('DOMContentLoaded', () => {
             } else {
                 resetMapPickMode();
                 mapPickTarget = 'origin';
-                mapPickBtn.textContent = '📍 Click anywhere on the map...';
+                mapPickBtn.textContent = '📍 Click anywhere on map for Starting Point...';
                 mapPickBtn.classList.add('active');
+                map.getContainer().style.cursor = 'crosshair';
+            }
+        });
+    }
+
+    const mapPickDestBtn = document.getElementById('map-pick-dest-btn');
+    if (mapPickDestBtn) {
+        mapPickDestBtn.addEventListener('click', () => {
+            if (mapPickTarget === 'destination') {
+                resetMapPickMode();
+            } else {
+                resetMapPickMode();
+                mapPickTarget = 'destination';
+                mapPickDestBtn.textContent = '🏁 Click anywhere on map for Destination Hub...';
+                mapPickDestBtn.classList.add('active');
                 map.getContainer().style.cursor = 'crosshair';
             }
         });
@@ -431,12 +533,33 @@ document.addEventListener('DOMContentLoaded', () => {
             const name = (nameInput && nameInput.value.trim()) ? nameInput.value.trim() : 'Custom Farm Location';
             updateCustomOriginMarker(lat, lng, name);
 
+            document.querySelectorAll('.origin-preset-btn').forEach(b => b.classList.remove('active'));
+
             const btn = document.getElementById('map-pick-mode-btn');
             if (btn) {
-                btn.textContent = '✓ Farm Set from Map!';
+                btn.textContent = '✓ Starting Point Set!';
                 btn.classList.remove('active');
                 setTimeout(() => {
-                    if (mapPickTarget !== 'origin' && btn) btn.textContent = '🎯 Click on Map to Set Farm';
+                    if (mapPickTarget !== 'origin' && btn) btn.textContent = '🎯 Click on Map to Set Starting Point';
+                }, 2500);
+            }
+        } else if (mapPickTarget === 'destination') {
+            const latInput = document.getElementById('custom-dest-lat');
+            const lngInput = document.getElementById('custom-dest-lng');
+            const nameInput = document.getElementById('custom-dest-name');
+            if (latInput) latInput.value = lat;
+            if (lngInput) lngInput.value = lng;
+            const name = (nameInput && nameInput.value.trim()) ? nameInput.value.trim() : 'Destination Hub';
+            updateCustomDestMarker(lat, lng, name);
+
+            document.querySelectorAll('.dest-preset-btn').forEach(b => b.classList.remove('active'));
+
+            const btn = document.getElementById('map-pick-dest-btn');
+            if (btn) {
+                btn.textContent = '✓ Destination Set from Map!';
+                btn.classList.remove('active');
+                setTimeout(() => {
+                    if (mapPickTarget !== 'destination' && btn) btn.textContent = '🎯 Click on Map to Set Destination Hub';
                 }, 2500);
             }
         }
@@ -446,8 +569,10 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // 1-Click Quick Presets for Single Custom Origin
-    document.querySelectorAll('.preset-btn:not(.farm-preset-btn)').forEach(btn => {
+    document.querySelectorAll('.origin-preset-btn, .preset-btn:not(.farm-preset-btn):not(.dest-preset-btn)').forEach(btn => {
         btn.addEventListener('click', () => {
+            document.querySelectorAll('.origin-preset-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
             const name = btn.dataset.name || btn.textContent.trim();
             const lat = parseFloat(btn.dataset.lat);
             const lng = parseFloat(btn.dataset.lng);
@@ -461,6 +586,27 @@ document.addEventListener('DOMContentLoaded', () => {
             if (lngInput) lngInput.value = lng;
             
             updateCustomOriginMarker(lat, lng, name);
+        });
+    });
+
+    // 1-Click Quick Presets for Destination Hub
+    document.querySelectorAll('.dest-preset-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            document.querySelectorAll('.dest-preset-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            const name = btn.dataset.name || btn.textContent.trim();
+            const lat = parseFloat(btn.dataset.lat);
+            const lng = parseFloat(btn.dataset.lng);
+
+            const latInput = document.getElementById('custom-dest-lat');
+            const lngInput = document.getElementById('custom-dest-lng');
+            const nameInput = document.getElementById('custom-dest-name');
+
+            if (nameInput) nameInput.value = name;
+            if (latInput) latInput.value = lat;
+            if (lngInput) lngInput.value = lng;
+
+            updateCustomDestMarker(lat, lng, name);
         });
     });
 
@@ -491,7 +637,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
-    // Manual input typing listeners
+    // Manual input typing listeners for live marker updates
     ['farm1-name', 'farm1-lat', 'farm1-lng', 'farm2-name', 'farm2-lat', 'farm2-lng'].forEach(id => {
         const el = document.getElementById(id);
         if (el) {
@@ -500,6 +646,26 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (multiFarmCheckbox && multiFarmCheckbox.checked) {
                     updateMultiFarmPreviewMarkers();
                 }
+            });
+        }
+    });
+
+    ['custom-origin-name', 'custom-origin-lat', 'custom-origin-lng'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) {
+            el.addEventListener('input', () => {
+                const custom = getCustomOriginData();
+                updateCustomOriginMarker(custom.lat, custom.lng, custom.name);
+            });
+        }
+    });
+
+    ['custom-dest-name', 'custom-dest-lat', 'custom-dest-lng'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) {
+            el.addEventListener('input', () => {
+                const dest = getDestinationData();
+                updateCustomDestMarker(dest.lat, dest.lng, dest.name);
             });
         }
     });
@@ -538,25 +704,11 @@ document.addEventListener('DOMContentLoaded', () => {
             farm2 = getFarm2Data();
             origin = farm1;
         } else {
-            const isCustomLocActive = customLocTray && customLocTray.style.display !== 'none';
-            if (isCustomLocActive) {
-                const customName = document.getElementById('custom-origin-name').value.trim() || 'Custom Farm Location';
-                const customLat = parseFloat(document.getElementById('custom-origin-lat').value) || 14.6231;
-                const customLng = parseFloat(document.getElementById('custom-origin-lng').value) || 75.6218;
-                origin = {
-                    id: 'custom_farm',
-                    name: customName,
-                    lat: customLat,
-                    lng: customLng,
-                    type: 'farm'
-                };
-                updateCustomOriginMarker(customLat, customLng, customName);
-            } else {
-                origin = CONFIG.LOCATIONS.FARMS[0];
-            }
+            origin = getCustomOriginData();
+            updateCustomOriginMarker(origin.lat, origin.lng, origin.name);
         }
 
-        const dest = CONFIG.LOCATIONS.HUB;
+        const dest = getDestinationData();
         const departureHour = parseInt(document.getElementById('departure-time').value, 10);
         const deadlineHours = parseFloat(document.getElementById('delivery-deadline').value) || 4;
 
@@ -661,7 +813,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const customCrop = getCustomCropConfig();
 
         // Render initially
-        renderRoutes(cachedRoutes, produceType, deadlineHours, weight, multiFarm, origin, farm1, farm2, customCrop);
+        renderRoutes(cachedRoutes, produceType, deadlineHours, weight, multiFarm, origin, farm1, farm2, customCrop, dest);
 
         calcBtnText.textContent = "Calculate Optimal Route";
         console.log("Route calculation complete.");
@@ -694,19 +846,9 @@ document.addEventListener('DOMContentLoaded', () => {
             farm2 = getFarm2Data();
             origin = farm1;
         } else {
-            const isCustomLocActive = customLocTray && customLocTray.style.display !== 'none';
-            if (isCustomLocActive) {
-                origin = {
-                    id: 'custom_farm',
-                    name: document.getElementById('custom-origin-name').value.trim() || 'Custom Farm Location',
-                    lat: parseFloat(document.getElementById('custom-origin-lat').value) || 14.6231,
-                    lng: parseFloat(document.getElementById('custom-origin-lng').value) || 75.6218,
-                    type: 'farm'
-                };
-            } else {
-                origin = CONFIG.LOCATIONS.FARMS[0];
-            }
+            origin = getCustomOriginData();
         }
+        const dest = getDestinationData();
         
         // Apply offset to cached routes
         cachedRoutes.forEach(route => {
@@ -715,7 +857,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
         
         const customCrop = getCustomCropConfig();
-        renderRoutes(cachedRoutes, produceType, deadlineHours, weight, multiFarm, origin, farm1, farm2, customCrop);
+        renderRoutes(cachedRoutes, produceType, deadlineHours, weight, multiFarm, origin, farm1, farm2, customCrop, dest);
     });
 
     // Dispatch Animation Logic with Selective Route Simulation & Progressive Decay
@@ -857,14 +999,14 @@ document.addEventListener('DOMContentLoaded', () => {
                 document.getElementById('hud-progress').textContent = `100% (${totalDistanceKm.toFixed(1)} km)`;
                 hudQuality.textContent = `${simRoute.thermal.qualityAtArrival}%`;
                 
-                const hudStatus = document.getElementById('hud-status');
+                const destHub = getDestinationData();
                 hudStatus.style.display = 'block';
                 if (simRoute.thermal.qualityAtArrival >= 80) {
                     hudStatus.style.color = '#10b981';
-                    hudStatus.textContent = `Produce Delivered at Hub — High Quality Preserved (${simRoute.thermal.qualityAtArrival}%)`;
+                    hudStatus.textContent = `Produce Delivered at ${destHub.name} — High Quality Preserved (${simRoute.thermal.qualityAtArrival}%)`;
                 } else if (simRoute.thermal.qualityAtArrival >= 65) {
                     hudStatus.style.color = '#f59e0b';
-                    hudStatus.textContent = `Produce Delivered at Hub — Moderate Heat Degradation (${simRoute.thermal.qualityAtArrival}%)`;
+                    hudStatus.textContent = `Produce Delivered at ${destHub.name} — Moderate Heat Degradation (${simRoute.thermal.qualityAtArrival}%)`;
                 } else {
                     hudStatus.style.color = '#ef4444';
                     hudStatus.textContent = `CRITICAL SPOILAGE DETECTED! Severe Thermal Decay (${simRoute.thermal.qualityAtArrival}%) on Hot Road`;
@@ -877,7 +1019,7 @@ document.addEventListener('DOMContentLoaded', () => {
         animationFrameId = requestAnimationFrame(animate);
     });
 
-    function renderRoutes(routesToRender, produceType, deadlineHours, weight, multiFarm = false, origin = null, farm1 = null, farm2 = null, customConfig = null) {
+    function renderRoutes(routesToRender, produceType, deadlineHours, weight, multiFarm = false, origin = null, farm1 = null, farm2 = null, customConfig = null, dest = null) {
         // --- Calculate thermal decay for all routes ---
         routesToRender.forEach((route, idx) => {
             if (!route.id) route.id = `route_${idx}`;
@@ -935,8 +1077,8 @@ document.addEventListener('DOMContentLoaded', () => {
             const orderedRoutes = [...routesToRender].sort((a, b) => (a.isRecommended === b.isRecommended ? 0 : a.isRecommended ? 1 : -1));
 
             // Dynamic Checkpoint Markers
-            const hub = CONFIG.LOCATIONS.HUB;
-            const currentOrigin = origin || CONFIG.LOCATIONS.FARMS[0];
+            const hub = dest || getDestinationData();
+            const currentOrigin = origin || getCustomOriginData();
             const currentFarm1 = farm1 || (multiFarm ? getFarm1Data() : currentOrigin);
             const currentFarm2 = farm2 || (multiFarm ? getFarm2Data() : CONFIG.LOCATIONS.FARMS[1]);
 
@@ -978,7 +1120,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 markersData.push({ 
                     latlng: [hub.lat, hub.lng], 
                     icon: createNumberedIcon('🏁', '#6366f1'), 
-                    popup: `<strong>🏁 GMU Processing Hub</strong><br>Destination: Davanagere<br>Lat: ${hub.lat.toFixed(4)}, Lng: ${hub.lng.toFixed(4)}` 
+                    popup: `<strong>🏁 ${hub.name}</strong><br>Destination End Point<br>Lat: ${hub.lat.toFixed(4)}, Lng: ${hub.lng.toFixed(4)}` 
                 });
                 
                 // Explanatory badge
@@ -999,8 +1141,8 @@ document.addEventListener('DOMContentLoaded', () => {
                     iconAnchor: [14, 28]
                 }) : createNumberedIcon('1', '#10b981');
 
-                markersData.push({ latlng: [currentOrigin.lat, currentOrigin.lng], icon: originIcon, popup: `📍 Origin: ${currentOrigin.name}` });
-                markersData.push({ latlng: [hub.lat, hub.lng], icon: createNumberedIcon('🏁', '#6366f1'), popup: `🏁 GMU Processing Hub (${hub.name}) - Destination` });
+                markersData.push({ latlng: [currentOrigin.lat, currentOrigin.lng], icon: originIcon, popup: `📍 Starting Point: ${currentOrigin.name}` });
+                markersData.push({ latlng: [hub.lat, hub.lng], icon: createNumberedIcon('🏁', '#6366f1'), popup: `🏁 ${hub.name} - Destination End Point` });
 
                 bounds.extend([currentOrigin.lat, currentOrigin.lng]);
                 bounds.extend([hub.lat, hub.lng]);

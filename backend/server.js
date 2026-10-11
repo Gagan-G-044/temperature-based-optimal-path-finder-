@@ -132,7 +132,10 @@ app.post('/api/optimize', async (req, res) => {
             if (c.name && (c.name.includes('Farm') || c.name.includes('\u2192') || c.name.includes('→'))) {
                 name = c.name + ' - ' + name;
             } else if (origin && origin.name && origin.name !== 'Farm 1 - Harihar') {
-                name = `${origin.name} (${name})`;
+                const destSuffix = (destination && destination.name && destination.name !== 'Davanagere GMU (Central Hub)') ? ` \u2192 ${destination.name}` : '';
+                name = `${origin.name}${destSuffix} (${name})`;
+            } else if (destination && destination.name && destination.name !== 'Davanagere GMU (Central Hub)') {
+                name = `${name} \u2192 ${destination.name}`;
             }
             c.name = name;
         });
