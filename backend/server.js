@@ -334,9 +334,11 @@ app.post('/api/optimize', async (req, res) => {
 });
 
 // Fallback to index.html for non-API client routes
-app.get('*', (req, res) => {
+app.use((req, res) => {
     if (!req.path.startsWith('/api')) {
         res.sendFile(path.join(frontendDir, 'index.html'));
+    } else {
+        res.status(404).json({ error: 'Endpoint not found' });
     }
 });
 

@@ -16,8 +16,12 @@
     <!-- Top Navigation Header -->
     <header class="app-header">
         <div class="header-inner">
-            <div style="display: flex; align-items: center; gap: 1rem;">
-                <a href="/" class="nav-back-btn">← Back to Overview</a>
+            <div class="header-left">
+                <a href="/" class="nav-back-btn">
+                    <span class="back-arrow">←</span>
+                    <span class="back-text-full">Back to Overview</span>
+                    <span class="back-text-short">Overview</span>
+                </a>
                 <div class="logo-container">
                     <div class="brand-dot"></div>
                     <h1>coolroute</h1>
@@ -32,14 +36,25 @@
             </div>
 
             <!-- Methodology Drawer Trigger -->
-            <div style="display: flex; align-items: center; gap: 0.5rem;">
-                <button type="button" id="toggle-methodology-btn" class="methodology-pill-btn">
-                    <span>📖 9-Step Pipeline & Insights</span>
+            <div class="header-right">
+                <button type="button" id="toggle-methodology-btn" class="methodology-pill-btn" aria-label="Toggle 9-Step Pipeline Methodology">
+                    <span class="methodology-text-full">📖 9-Step Pipeline & Insights</span>
+                    <span class="methodology-text-short">📖 9 Steps</span>
                     <span id="drawer-arrow">↓</span>
                 </button>
             </div>
         </div>
     </header>
+
+    <!-- Mobile Segmented View Switcher -->
+    <div class="mobile-view-tabs" id="mobile-view-tabs" role="tablist" aria-label="Dashboard View Switcher">
+        <button type="button" class="mobile-tab-btn active" id="tab-btn-controls" role="tab" aria-selected="true" aria-controls="control-panel">
+            <span>⚙️ Route Controls & Mandi</span>
+        </button>
+        <button type="button" class="mobile-tab-btn" id="tab-btn-map" role="tab" aria-selected="false" aria-controls="map-container">
+            <span>🗺️ Live Route Map</span>
+        </button>
+    </div>
 
     <!-- Collapsible Methodology & Info Drawer from Pic 2 -->
     <div id="methodology-drawer">
@@ -111,7 +126,7 @@
     </div>
 
     <!-- Main Workspace Container -->
-    <main class="app-container">
+    <main class="app-container view-controls" id="app-container">
         <!-- Left Sidebar: Route Configuration & Engine Controls -->
         <div id="control-panel" class="sidebar">
             <div class="panel-section">
@@ -417,6 +432,36 @@
                 e.stopPropagation();
                 hudElem.style.display = 'none';
             });
+        }
+
+        // Mobile View Switcher (Controls vs Map)
+        const tabBtnControls = document.getElementById('tab-btn-controls');
+        const tabBtnMap = document.getElementById('tab-btn-map');
+        const appContainer = document.getElementById('app-container');
+
+        window.switchDashboardTab = function(tab) {
+            if (!appContainer) return;
+            if (tab === 'map') {
+                appContainer.classList.remove('view-controls');
+                appContainer.classList.add('view-map');
+                if (tabBtnMap) tabBtnMap.classList.add('active');
+                if (tabBtnControls) tabBtnControls.classList.remove('active');
+                setTimeout(() => {
+                    if (window.map) {
+                        window.map.invalidateSize();
+                    }
+                }, 120);
+            } else {
+                appContainer.classList.remove('view-map');
+                appContainer.classList.add('view-controls');
+                if (tabBtnControls) tabBtnControls.classList.add('active');
+                if (tabBtnMap) tabBtnMap.classList.remove('active');
+            }
+        };
+
+        if (tabBtnControls && tabBtnMap) {
+            tabBtnControls.addEventListener('click', () => window.switchDashboardTab('controls'));
+            tabBtnMap.addEventListener('click', () => window.switchDashboardTab('map'));
         }
     </script>
 </body>

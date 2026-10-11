@@ -14,6 +14,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Initialize map
     map = L.map('map').setView(CONFIG.MAP.CENTER, CONFIG.MAP.ZOOM);
+    window.map = map;
     routeLayerGroup = L.layerGroup().addTo(map);
     markerLayerGroup = L.layerGroup().addTo(map);
 
@@ -664,6 +665,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
         calcBtnText.textContent = "Calculate Optimal Route";
         console.log("Route calculation complete.");
+        if (window.innerWidth <= 992 && typeof window.switchDashboardTab === 'function') {
+            window.switchDashboardTab('map');
+        }
     });
 
     // Heatwave Slider Logic
